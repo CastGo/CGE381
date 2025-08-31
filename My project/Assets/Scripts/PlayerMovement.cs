@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     bool isFacingRight = false;
     float jumpPower = 5f;
     bool isGrounded = false;
+    bool isCrouching = false;
 
     Rigidbody2D rb;
     Animator animator;
@@ -28,17 +29,35 @@ public class PlayerMovement : MonoBehaviour
 
         FlipSprite();
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpPower);
             isGrounded = false;
             animator.SetBool("isJumping", !isGrounded);
         }
+
+        if(Input.GetKeyDown(KeyCode.S))
+        {
+            isCrouching = true;
+            animator.SetBool("isCrouching", true);
+        }
+        if (Input.GetKeyUp(KeyCode.S))
+        {
+            isCrouching = false;
+            animator.SetBool("isCrouching", false);
+        }
     }
 
     private void FixedUpdate()
     {
-        rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+        if (isCrouching)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
+        else
+        {
+            rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+        }
         animator.SetFloat("xVelocity", Math.Abs(rb.velocity.x));
         animator.SetFloat("yVelocity", rb.velocity.y);
     }
