@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     float horizontalInput;
     float moveSpeed = 5f;
     bool isFacingRight = false;
-    float jumpPower = 5f;
+    float jumpPower = 7f;
     bool isGrounded = false;
     bool isCrouching = false;
     bool isAttacking = false;
@@ -50,15 +50,21 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J) && !isAttacking)
         {
-            isAttacking = true;
 
-            if (isCrouching)
+            if(!isGrounded)
             {
+                animator.SetBool("isJumping", false);
+                animator.SetBool("isJumpAttacking", true);
+            }
+            else if (isCrouching)
+            {
+                isAttacking = true;
                 animator.SetBool("isCrouching", false);
                 animator.SetBool("isCrouchAttacking", true);
             }
             else
             {
+                isAttacking = true;
                 animator.SetBool("isAttacking", true);
             }
         }
@@ -100,7 +106,12 @@ public class PlayerMovement : MonoBehaviour
         isAttacking = false;
         animator.SetBool("isAttacking", false);
         animator.SetBool("isCrouchAttacking", false);
+        animator.SetBool("isJumpAttacking", false);
 
+        if (!isGrounded)
+        {
+            animator.SetBool("isJumping", true);
+        }
         if (Input.GetKey(KeyCode.S))
         {
             isCrouching = true;
