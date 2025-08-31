@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     float jumpPower = 5f;
     bool isGrounded = false;
     bool isCrouching = false;
+    bool isAttacking = false;
 
     Rigidbody2D rb;
     Animator animator;
@@ -29,14 +30,14 @@ public class PlayerMovement : MonoBehaviour
 
         FlipSprite();
 
-        if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching)
+        if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching && !isAttacking)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpPower);
             isGrounded = false;
             animator.SetBool("isJumping", !isGrounded);
         }
 
-        if(Input.GetKeyDown(KeyCode.S))
+        if(Input.GetKeyDown(KeyCode.S) && !isAttacking)
         {
             isCrouching = true;
             animator.SetBool("isCrouching", true);
@@ -46,11 +47,26 @@ public class PlayerMovement : MonoBehaviour
             isCrouching = false;
             animator.SetBool("isCrouching", false);
         }
+
+        if (Input.GetKeyDown(KeyCode.J) && !isAttacking)
+        {
+            isAttacking = true;
+
+            if (isCrouching)
+            {
+                animator.SetBool("isCrouching", false);
+                animator.SetBool("isCrouchAttacking", true);
+            }
+            else
+            {
+                animator.SetBool("isAttacking", true);
+            }
+        }
     }
 
     private void FixedUpdate()
     {
-        if (isCrouching)
+        if (isCrouching || isAttacking)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
@@ -77,5 +93,18 @@ public class PlayerMovement : MonoBehaviour
     {
         isGrounded = true;
         animator.SetBool("isJumping", !isGrounded);
+    }
+
+    public void FinishAttack()
+    {
+        isAttacking = false;
+        animator.SetBool("isAttacking", false);
+        animator.SetBool("isCrouchAttacking", false);
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            isCrouching = true;
+            animator.SetBool("isCrouching", true);
+        }
     }
 }
