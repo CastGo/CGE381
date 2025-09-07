@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
@@ -97,8 +97,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        isGrounded = true;
-        animator.SetBool("isJumping", !isGrounded);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isGrounded = true;  // อยู่บนพื้น
+            animator.SetBool("isJumping", !isGrounded); // false -> ไม่เล่น jump
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isGrounded = false; // ลอยจากพื้น
+            animator.SetBool("isJumping", !isGrounded); // true -> เล่น jump
+        }
     }
 
     public void FinishAttack()
