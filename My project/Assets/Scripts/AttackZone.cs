@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class AttackZone : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Transform areaPoint;
+    public GameObject attackArea;
     void Start()
     {
         

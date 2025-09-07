@@ -82,7 +82,21 @@ public class PlayerLife : MonoBehaviour
         currentLife = maxLife;
         LifeUI.SetMaxLifes(maxLife);
     }
+    public void Heal(int amount)
+    {
+        int before = currentLife;
+        currentLife = Mathf.Min(maxLife, currentLife + amount);
 
+        if (currentLife != before)
+        {
+            LifeUI.UpdateLifes(currentLife);
+            //StartCoroutine(FlashHeal());
+        }
+    }
+    public void HealFull()
+    {
+        Heal(maxLife);
+    }
     private void TakeDamage(int damage)
     {
         currentLife -= damage;
