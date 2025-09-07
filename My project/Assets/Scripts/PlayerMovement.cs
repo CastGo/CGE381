@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     bool isCrouching = false;
     bool isAttacking = false;
 
+    public int attackDamage = 1;
     Rigidbody2D rb;
     Animator animator;
 
@@ -74,6 +75,10 @@ public class PlayerMovement : MonoBehaviour
             
             var attack = Instantiate(attackArea, areaPoint.position, areaPoint.rotation);
 
+
+            var area = attack.GetComponent<AttackArea>();
+            if (area != null)
+                area.damage = attackDamage;
         }
     }
 
