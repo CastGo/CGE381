@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Transform areaPoint;
+    public GameObject attackArea;
+
     float horizontalInput;
     float moveSpeed = 5f;
     bool isFacingRight = false;
@@ -64,9 +67,13 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
+                
                 isAttacking = true;
                 animator.SetBool("isAttacking", true);
             }
+            
+            var attack = Instantiate(attackArea, areaPoint.position, areaPoint.rotation);
+
         }
     }
 

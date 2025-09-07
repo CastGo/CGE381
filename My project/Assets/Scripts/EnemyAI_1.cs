@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ public class EnemyAI_1 : MonoBehaviour
     public int damage = 1;
 
     public int maxLife = 3;
-    private int currentLife;
+    public int currentLife;
     private SpriteRenderer spriteRenderer;
     private Color ogColor;
 
@@ -62,6 +62,19 @@ public class EnemyAI_1 : MonoBehaviour
     //    yield return new WaitForSeconds(0.2f);
     //    spriteRenderer.color = ogColor;
     //}
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("PlayerDamage"))
+        {
+            AttackArea attackArea = collision.GetComponent<AttackArea>();
+            if (attackArea)
+            {
+                TakeDamage(attackArea.damage);
+            }
+            //// รีเซ็ตเวลาใหม่ทันทีหลังโดน
+            //damageTimer = 0f;
+        }
+    }
     public void TakeDamage(int damage)
     {
         currentLife -= damage;
