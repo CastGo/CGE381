@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     float jumpPower = 7f;
     bool isGrounded = false;
     bool isCrouching = false;
+    bool isClimbing = false;
+    bool isClimbAttacking = false;
     bool isAttacking = false;
 
     public int attackDamage = 1;
@@ -23,6 +25,10 @@ public class PlayerMovement : MonoBehaviour
 
     public CoinManager cm;
 
+    [SerializeField] float climbJumpY = 8f;   // แรงกระโดดแนวตั้งตอนกด Jump ระหว่างเกาะ
+    float normalGravity;                      // เก็บค่า gravityScale ปกติ
+    bool isInClimbZone = false;               // อยู่ทับผนังที่เกาะได้ (Tag=ClimbingWall) ไหม
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
 
         defaultAreaPointPos = areaPoint.localPosition;
+        normalGravity = rb.gravityScale <= 0f ? 1f : rb.gravityScale;
     }
 
     // Update is called once per frame
@@ -39,6 +46,20 @@ public class PlayerMovement : MonoBehaviour
 
         FlipSprite();
 
+        if (!isClimbing && Input.GetKeyDown(KeyCode.W) && isInClimbZone && !isGrounded && !isAttacking)
+        {
+            StartClimb();
+        }
+
+        if (isClimbing && !isClimbAttacking && Input.GetButtonDown("Jump"))
+        {
+            rb.velocity = new Vector2(0f, climbJumpY);
+            StopClimb();
+
+            isGrounded = false;
+            animator.SetBool("isJumping", true);
+        }
+
         if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching && !isAttacking)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpPower);
@@ -46,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isJumping", !isGrounded);
         }
 
-        if(Input.GetKeyDown(KeyCode.S) && !isAttacking)
+        if (Input.GetKeyDown(KeyCode.S) && !isAttacking && !isClimbing)
         {
             isCrouching = true;
             animator.SetBool("isCrouching", true);
@@ -61,37 +82,65 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J) && !isAttacking)
         {
-
-            if(!isGrounded)
+            if (isClimbing)
             {
-                animator.SetBool("isJumping", false);
-                animator.SetBool("isJumpAttacking", true);
-            }
-            else if (isCrouching)
-            {
+                // --- Climb Attack ---
                 isAttacking = true;
-                animator.SetBool("isCrouching", false);
-                animator.SetBool("isCrouchAttacking", true);
+                isClimbAttacking = true;
+
+                // ปิดสถานะเกาะระหว่างออกท่า
+                isClimbing = false;
+                animator.SetBool("isClimbing", false);
+
+                // เปิดอนิเมชันท่าเกาะต่อย
+                animator.SetBool("isClimbAttacking", true);
+
+                // ล็อกนิ่งเหมือนตอนเกาะ
+                rb.gravityScale = 0f;
+                rb.velocity = Vector2.zero;
+
+                // สร้าง hitbox
+                var attack = Instantiate(attackArea, areaPoint.position, areaPoint.rotation);
+                var area = attack.GetComponent<AttackArea>();
+                if (area != null) area.damage = attackDamage;
             }
             else
             {
-                
-                isAttacking = true;
-                animator.SetBool("isAttacking", true);
+                if (!isGrounded)
+                {
+                    animator.SetBool("isJumping", false);
+                    animator.SetBool("isJumpAttacking", true);
+                }
+                else if (isCrouching)
+                {
+                    isAttacking = true;
+                    animator.SetBool("isCrouching", false);
+                    animator.SetBool("isCrouchAttacking", true);
+                }
+                else
+                {
+
+                    isAttacking = true;
+                    animator.SetBool("isAttacking", true);
+                }
+
+                var attack = Instantiate(attackArea, areaPoint.position, areaPoint.rotation);
+
+
+                var area = attack.GetComponent<AttackArea>();
+                if (area != null)
+                    area.damage = attackDamage;
             }
-            
-            var attack = Instantiate(attackArea, areaPoint.position, areaPoint.rotation);
-
-
-            var area = attack.GetComponent<AttackArea>();
-            if (area != null)
-                area.damage = attackDamage;
         }
     }
 
     private void FixedUpdate()
     {
-        if (isCrouching || isAttacking)
+        if (isClimbing)
+        {
+            rb.velocity = Vector2.zero;   // ล็อกนิ่งทั้ง X/Y ตอนเกาะ
+        }
+        else if (isCrouching || isAttacking)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
@@ -99,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
         }
+
         animator.SetFloat("xVelocity", Math.Abs(rb.velocity.x));
         animator.SetFloat("yVelocity", rb.velocity.y);
     }
@@ -121,7 +171,10 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true;  // อยู่บนพื้น
             animator.SetBool("isJumping", !isGrounded); // false -> ไม่เล่น jump
         }
-
+        if (collision.gameObject.CompareTag("ClimbingWall"))
+        {
+            isInClimbZone = true;
+        }
         if (collision.gameObject.CompareTag("Coin50"))
         {
             Destroy(collision.gameObject);
@@ -141,10 +194,51 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false; // ลอยจากพื้น
             animator.SetBool("isJumping", !isGrounded); // true -> เล่น jump
         }
+        if (collision.gameObject.CompareTag("ClimbingWall"))
+        {
+            isInClimbZone = false;
+            if (isClimbing) StopClimb();
+        }
+    }
+    void StartClimb()
+    {
+        isClimbing = true;
+        rb.gravityScale = 0f;        // เกาะแล้วไม่ตก
+        rb.velocity = Vector2.zero;  // หยุดทันที
+
+        // ถ้ามีพารามิเตอร์ใน Animator
+        animator.SetBool("isClimbing", true);
+        animator.SetBool("isJumping", false);
     }
 
+    void StopClimb()
+    {
+        isClimbing = false;
+        rb.gravityScale = normalGravity; // คืนแรงโน้มถ่วง
+        animator.SetBool("isClimbing", false);
+
+        // ถ้ายังไม่แตะพื้น ให้กลับไปอนิเมชันกระโดด
+        if (!isGrounded) animator.SetBool("isJumping", true);
+    }
     public void FinishAttack()
     {
+        // --- ถ้าเป็นการโจมตีขณะเกาะ ---
+        if (isClimbAttacking)
+        {
+            isClimbAttacking = false;
+            isAttacking = false;
+            animator.SetBool("isClimbAttacking", false);
+
+            // กลับไปเกาะแบบตรง ๆ
+            isClimbing = true;
+            rb.gravityScale = 0f;
+            rb.velocity = Vector2.zero;
+            animator.SetBool("isClimbing", true);
+            animator.SetBool("isJumping", false);
+
+            return;
+        }
+
         isAttacking = false;
         animator.SetBool("isAttacking", false);
         animator.SetBool("isCrouchAttacking", false);

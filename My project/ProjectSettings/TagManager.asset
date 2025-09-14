@@ -9,6 +9,7 @@ TagManager:
   - Coin50
   - Coin200
   - DestroyObject
+  - ClimbingWall
   layers:
   - Default
   - TransparentFX
