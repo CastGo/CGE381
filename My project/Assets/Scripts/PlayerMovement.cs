@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public Transform areaPoint;
+    private Vector3 defaultAreaPointPos;
     public GameObject attackArea;
 
     float horizontalInput;
@@ -27,6 +28,8 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        defaultAreaPointPos = areaPoint.localPosition;
     }
 
     // Update is called once per frame
@@ -47,11 +50,13 @@ public class PlayerMovement : MonoBehaviour
         {
             isCrouching = true;
             animator.SetBool("isCrouching", true);
+            areaPoint.localPosition = defaultAreaPointPos + new Vector3(0, -0.4f, 0);
         }
         if (Input.GetKeyUp(KeyCode.S))
         {
             isCrouching = false;
             animator.SetBool("isCrouching", false);
+            areaPoint.localPosition = defaultAreaPointPos;
         }
 
         if (Input.GetKeyDown(KeyCode.J) && !isAttacking)

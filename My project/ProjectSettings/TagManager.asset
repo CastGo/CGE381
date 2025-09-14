@@ -8,6 +8,7 @@ TagManager:
   - PlayerDamage
   - Coin50
   - Coin200
+  - DestroyObject
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Enemy
   - EnemyBody
   - PlayerBody
-  - 
+  - Item
   - 
   - 
   - 

@@ -17,5 +17,9 @@ public class AttackArea : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        if (collision.CompareTag("DestroyObject"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
