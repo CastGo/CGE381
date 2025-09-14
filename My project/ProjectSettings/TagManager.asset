@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - PlayerDamage
+  - Coin50
+  - Coin200
   layers:
   - Default
   - TransparentFX

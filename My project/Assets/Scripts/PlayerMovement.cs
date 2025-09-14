@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
 
+    public CoinManager cm;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -113,6 +115,17 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = true;  // อยู่บนพื้น
             animator.SetBool("isJumping", !isGrounded); // false -> ไม่เล่น jump
+        }
+
+        if (collision.gameObject.CompareTag("Coin50"))
+        {
+            Destroy(collision.gameObject);
+            cm.coinCount += 50;
+        }
+        if (collision.gameObject.CompareTag("Coin200"))
+        {
+            Destroy(collision.gameObject);
+            cm.coinCount += 200;
         }
     }
 
