@@ -16,6 +16,7 @@ public class PlayerLife : MonoBehaviour
 
     [SerializeField] float damageInterval = 1f; // เวลาดีเลย์ต่อการโดนดาเมจแต่ละครั้ง
     private float damageTimer = 0f;
+    private float nextDamageTime = 0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,31 +27,42 @@ public class PlayerLife : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy") && Time.time >= nextDamageTime)
         {
             EnemyAI_1 enemyAI_1 = collision.GetComponent<EnemyAI_1>();
+            EnemyAI_2 enemyAI_2 = collision.GetComponent<EnemyAI_2>();
+
             if (enemyAI_1)
             {
                 TakeDamage(enemyAI_1.damage);
             }
-            // รีเซ็ตเวลาใหม่ทันทีหลังโดน
-            damageTimer = 0f;
+            else if (enemyAI_2)
+            {
+                TakeDamage(enemyAI_2.damage);
+            }
+
+            nextDamageTime = Time.time + damageInterval; // เริ่มคูลดาวน์
         }
     }
     private void OnTriggerStay2D(Collider2D collision)
-    {        
+    {
         if (collision.CompareTag("Enemy"))
         {
-            damageTimer += Time.deltaTime;
-            if (damageTimer >= damageInterval)
+            if (collision.CompareTag("Enemy") && Time.time >= nextDamageTime)
             {
                 EnemyAI_1 enemyAI_1 = collision.GetComponent<EnemyAI_1>();
+                EnemyAI_2 enemyAI_2 = collision.GetComponent<EnemyAI_2>();
+
                 if (enemyAI_1)
                 {
                     TakeDamage(enemyAI_1.damage);
                 }
-                // รีเซ็ตเวลาเมื่อได้รับดาเมจ
-                damageTimer = 0f;
+                else if (enemyAI_2)
+                {
+                    TakeDamage(enemyAI_2.damage);
+                }
+
+                nextDamageTime = Time.time + damageInterval; // ต่อคูลดาวน์อีก 1 วิ
             }
         }
     }
@@ -107,7 +119,7 @@ public class PlayerLife : MonoBehaviour
         if (currentLife <= 0)
         {
             //player dead! -- call game over, animation, etc
-            OnPlayedDied.Invoke();
+            OnPlayedDied?.Invoke();
         }
     }
 
