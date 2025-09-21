@@ -33,6 +33,7 @@ public class PlayerLife : MonoBehaviour
             EnemyAI_2 enemyAI_2 = collision.GetComponent<EnemyAI_2>();
             EnemyAI_3 enemyAI_3 = collision.GetComponent<EnemyAI_3>();
             EnemyAI_4 enemyAI_4 = collision.GetComponent<EnemyAI_4>();
+            EnemyAI_5 enemyAI_5 = collision.GetComponent<EnemyAI_5>();
 
             if (enemyAI_1)
             {
@@ -50,6 +51,10 @@ public class PlayerLife : MonoBehaviour
             {
                 TakeDamage(enemyAI_4.damage);
             }
+            else if (enemyAI_5)
+            {
+                TakeDamage(enemyAI_5.damage);
+            }
 
             nextDamageTime = Time.time + damageInterval; // เริ่มคูลดาวน์
         }
@@ -64,6 +69,7 @@ public class PlayerLife : MonoBehaviour
                 EnemyAI_2 enemyAI_2 = collision.GetComponent<EnemyAI_2>();
                 EnemyAI_3 enemyAI_3 = collision.GetComponent<EnemyAI_3>();
                 EnemyAI_4 enemyAI_4 = collision.GetComponent<EnemyAI_4>();
+                EnemyAI_5 enemyAI_5 = collision.GetComponent<EnemyAI_5>();
 
                 if (enemyAI_1)
                 {
@@ -80,6 +86,10 @@ public class PlayerLife : MonoBehaviour
                 else if (enemyAI_4)
                 {
                     TakeDamage(enemyAI_4.damage);
+                }
+                else if (enemyAI_5)
+                {
+                    TakeDamage(enemyAI_5.damage);
                 }
 
                 nextDamageTime = Time.time + damageInterval; // ต่อคูลดาวน์อีก 1 วิ
