@@ -100,8 +100,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  direction: {x: 1, y: 0}
-  lifeTime: 3
   damage: 1
 --- !u!50 &2759601842292894734
 Rigidbody2D:
@@ -162,6 +160,6 @@ CapsuleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -5.491351, y: -1.3331385e-13}
-  m_Size: {x: 11.982599, y: 11.982598}
+  m_Offset: {x: 0.004030517, y: 0}
+  m_Size: {x: 1.1735028, y: 11.982601}
   m_Direction: 0
